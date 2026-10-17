@@ -3,13 +3,12 @@ from functools import partial
 from facefusion import process_manager, state_manager
 from facefusion.types import ErrorCode
 from facefusion.workflows.core import clear, setup
-from facefusion.workflows.to_video import analyse_video, extract_frames, finalize_video, merge_frames, process_disk_frames, process_memory_frames, restore_audio
+from facefusion.workflows.to_video import extract_frames, finalize_video, merge_frames, process_disk_frames, process_memory_frames, restore_audio
 
 
 def process(start_time : float) -> ErrorCode:
 	tasks =\
 	[
-		analyse_video,
 		clear,
 		setup
 	]

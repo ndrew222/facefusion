@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 from onnxruntime import InferenceSession
 
-from facefusion import content_analyser, state_manager
+from facefusion import face_detector, state_manager
 from facefusion.execution import resolve_cache_path
 from facefusion.inference_manager import clear_inference_pool, get_inference_pool, resolve_static_inference_providers
 
@@ -15,6 +15,9 @@ def before_all() -> None:
 	state_manager.init_item('execution_device_ids', [ 0 ])
 	state_manager.init_item('execution_providers', [ 'cpu' ])
 	state_manager.init_item('download_providers', [ 'github' ])
+	state_manager.init_item('face_detector_model', 'many')
+
+	face_detector.pre_check()
 
 
 @pytest.mark.parametrize('onnxruntime_version, is_shared',
@@ -26,23 +29,23 @@ def before_all() -> None:
 	((1, 29, 0), True)
 ])
 def test_get_inference_pool(onnxruntime_version : Tuple[int, int, int], is_shared : bool) -> None:
-	model_names = [ 'nsfw_1', 'nsfw_2', 'nsfw_3' ]
-	_, model_source_set = content_analyser.collect_model_downloads()
+	model_names = [ 'retinaface', 'scrfd', 'yolo_face', 'yunet' ]
+	_, model_source_set = face_detector.collect_model_downloads()
 
 	with patch('facefusion.inference_manager.has_execution_provider', return_value = True):
 		with patch('facefusion.inference_manager.get_onnxruntime_version', return_value = onnxruntime_version):
 			with patch('facefusion.inference_manager.detect_app_context', return_value = 'ui'):
-				clear_inference_pool('facefusion.content_analyser', model_names)
+				clear_inference_pool('facefusion.face_detector', model_names)
 
 			with patch('facefusion.inference_manager.detect_app_context', return_value = 'cli'):
-				clear_inference_pool('facefusion.content_analyser', model_names)
-				cli_inference_pool = get_inference_pool('facefusion.content_analyser', model_names, model_source_set)
+				clear_inference_pool('facefusion.face_detector', model_names)
+				cli_inference_pool = get_inference_pool('facefusion.face_detector', model_names, model_source_set)
 
 			with patch('facefusion.inference_manager.detect_app_context', return_value = 'ui'):
-				ui_inference_pool = get_inference_pool('facefusion.content_analyser', model_names, model_source_set)
+				ui_inference_pool = get_inference_pool('facefusion.face_detector', model_names, model_source_set)
 
-	assert isinstance(cli_inference_pool.get('nsfw_1'), InferenceSession)
-	assert (cli_inference_pool.get('nsfw_1') is ui_inference_pool.get('nsfw_1')) == is_shared
+	assert isinstance(cli_inference_pool.get('retinaface'), InferenceSession)
+	assert (cli_inference_pool.get('retinaface') is ui_inference_pool.get('retinaface')) == is_shared
 
 
 @pytest.fixture

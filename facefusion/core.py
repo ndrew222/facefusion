@@ -1,11 +1,10 @@
-import inspect
 import itertools
 import shutil
 import signal
 import sys
 from time import time
 
-from facefusion import benchmarker, cli_helper, content_analyser, hash_helper, logger, state_manager, translator
+from facefusion import benchmarker, cli_helper, logger, state_manager, translator
 from facefusion.args import apply_args, collect_job_args, reduce_job_args, reduce_step_args
 from facefusion.download import conditional_download_hashes, conditional_download_sources
 from facefusion.exit_helper import hard_exit, signal_exit
@@ -45,7 +44,7 @@ def route(args : Args) -> None:
 		hard_exit(error_code)
 
 	if state_manager.get_item('command') == 'benchmark':
-		if not common_pre_check() or not processors_pre_check() or not benchmarker.pre_check():
+		if not processors_pre_check() or not benchmarker.pre_check():
 			hard_exit(2)
 		benchmarker.render()
 
@@ -58,7 +57,7 @@ def route(args : Args) -> None:
 	if state_manager.get_item('command') == 'run':
 		import facefusion.uis.core as ui
 
-		if not common_pre_check() or not processors_pre_check():
+		if not processors_pre_check():
 			hard_exit(2)
 		for ui_layout in ui.get_ui_layouts_modules(state_manager.get_item('ui_layouts')):
 			if not ui_layout.pre_check():
@@ -95,12 +94,6 @@ def pre_check() -> bool:
 			logger.error(translator.get('dependency_not_installed').format(dependency = dependency), __name__)
 			return False
 	return True
-
-
-def common_pre_check() -> bool:
-	content_analyser_content = inspect.getsource(content_analyser).encode()
-
-	return hash_helper.create_hash(content_analyser_content) == '068a6158'
 
 
 def processors_pre_check() -> bool:
@@ -303,7 +296,7 @@ def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	apply_args(step_args, state_manager.set_item)
 
 	logger.info(translator.get('processing_step').format(step_current = step_index + 1, step_total = step_total), __name__)
-	if common_pre_check() and processors_pre_check():
+	if processors_pre_check():
 		error_code = conditional_process()
 		return error_code == 0
 	return False

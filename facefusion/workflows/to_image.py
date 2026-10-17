@@ -1,4 +1,4 @@
-from facefusion import content_analyser, ffmpeg, logger, process_manager, state_manager, translator
+from facefusion import ffmpeg, logger, process_manager, state_manager, translator
 from facefusion.filesystem import is_image
 from facefusion.processors.core import get_processors_modules
 from facefusion.temp_helper import get_temp_file_path
@@ -6,12 +6,6 @@ from facefusion.time_helper import calculate_end_time
 from facefusion.types import ErrorCode
 from facefusion.vision import detect_image_resolution, pack_resolution, read_static_image, restrict_image_resolution, scale_resolution, write_image
 from facefusion.workflows.core import conditional_get_target_vision_frames, is_process_stopping, process_temp_frame
-
-
-def analyse_image() -> ErrorCode:
-	if content_analyser.analyse_image(state_manager.get_item('target_path')):
-		return 3
-	return 0
 
 
 def prepare_image() -> ErrorCode:

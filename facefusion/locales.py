@@ -10,7 +10,6 @@ LOCALES : Locales =\
 		'extracting_frames': 'extracting frames with a resolution of {resolution} and {fps} frames per second',
 		'extracting_frames_succeeded': 'extracting frames succeeded',
 		'extracting_frames_failed': 'extracting frames failed',
-		'analysing': 'analysing',
 		'extracting': 'extracting',
 		'streaming': 'streaming',
 		'processing': 'processing',
