@@ -14,23 +14,22 @@ LOCALES =\
 {
 	'install_dependency': 'install the {dependency} package',
 	'force_reinstall': 'force reinstall of packages',
-	'skip_conda': 'skip the conda environment check',
-	'conda_not_activated': 'conda is not activated'
+	'uv_not_installed': 'uv is not installed'
 }
 ONNXRUNTIME_SET =\
 {
-	'default': ('onnxruntime', '1.30.0')
+	'default': 'cpu'
 }
 if is_windows() or is_linux():
-	ONNXRUNTIME_SET['cuda@12'] = ('onnxruntime-gpu', '1.24.4')
-	ONNXRUNTIME_SET['cuda@13'] = ('onnxruntime-gpu', '1.30.0')
-	ONNXRUNTIME_SET['openvino'] = ('onnxruntime-openvino', '1.24.1')
+	ONNXRUNTIME_SET['cuda@12'] = 'cuda-12'
+	ONNXRUNTIME_SET['cuda@13'] = 'cuda-13'
+	ONNXRUNTIME_SET['openvino'] = 'openvino'
 if is_windows():
-	ONNXRUNTIME_SET['directml'] = ('onnxruntime-directml', '1.24.4')
-	ONNXRUNTIME_SET['qnn'] = ('onnxruntime-qnn', '2.6.0')
+	ONNXRUNTIME_SET['directml'] = 'directml'
+	ONNXRUNTIME_SET['qnn'] = 'qnn'
 if is_linux():
-	ONNXRUNTIME_SET['migraphx'] = ('onnxruntime-migraphx', '1.27.1')
-	ONNXRUNTIME_SET['rocm'] = ('onnxruntime-rocm', '1.22.2.post3')
+	ONNXRUNTIME_SET['migraphx'] = 'migraphx'
+	ONNXRUNTIME_SET['rocm'] = 'rocm'
 
 
 def cli() -> None:
@@ -38,7 +37,6 @@ def cli() -> None:
 	program = ArgumentParser(formatter_class = partial(HelpFormatter, max_help_position = 50))
 	program.add_argument('onnxruntime', help = LOCALES.get('install_dependency').format(dependency = 'onnxruntime'), choices = ONNXRUNTIME_SET.keys())
 	program.add_argument('--force-reinstall', help = LOCALES.get('force_reinstall'), action = 'store_true')
-	program.add_argument('--skip-conda', help = LOCALES.get('skip_conda'), action = 'store_true')
 	program.add_argument('-v', '--version', version = metadata.get('name') + ' ' + metadata.get('version'), action = 'version')
 	run(program)
 
@@ -49,28 +47,16 @@ def signal_exit(signum : int, frame : FrameType) -> None:
 
 def run(program : ArgumentParser) -> None:
 	args = program.parse_args()
-	has_conda = 'CONDA_PREFIX' in os.environ
+	uv_path = shutil.which('uv')
 
-	if not args.skip_conda and not has_conda:
-		sys.stdout.write(LOCALES.get('conda_not_activated') + os.linesep)
+	if uv_path:
+		dependency_group = ONNXRUNTIME_SET[args.onnxruntime]
+		commands = [ uv_path, 'sync', '--only-group', dependency_group ]
+
+		if args.force_reinstall:
+			commands.append('--reinstall')
+
+		subprocess.call(commands)
+	else:
+		sys.stdout.write(LOCALES.get('uv_not_installed') + os.linesep)
 		sys.exit(1)
-
-	for onnxruntime_package, _ in ONNXRUNTIME_SET.values():
-		subprocess.call([ shutil.which('pip'), 'uninstall', onnxruntime_package, '-y', '-q' ], stderr = subprocess.DEVNULL)
-
-	commands = [ shutil.which('pip'), 'install' ]
-
-	if args.force_reinstall:
-		commands.append('--force-reinstall')
-
-	with open('requirements.txt') as file:
-
-		for line in file.readlines():
-			__line__ = line.strip()
-
-			if not __line__.startswith('onnxruntime'):
-				commands.append(__line__)
-
-	onnxruntime_name, onnxruntime_version = ONNXRUNTIME_SET.get(args.onnxruntime)
-	commands.append(onnxruntime_name + '==' + onnxruntime_version)
-	subprocess.call(commands)

@@ -17,7 +17,21 @@ Preview
 Installation
 ------------
 
-Be aware, the [installation](https://docs.facefusion.io/installation) needs technical skills and is not recommended for beginners. In case you are not comfortable using a terminal, our [Windows Installer](http://windows-installer.facefusion.io) and [macOS Installer](http://macos-installer.facefusion.io) get you started.
+Be aware, the installation needs technical skills and is not recommended for beginners. In case you are not comfortable using a terminal, our [Windows Installer](http://windows-installer.facefusion.io) and [macOS Installer](http://macos-installer.facefusion.io) get you started.
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and choose your onnxruntime variant:
+
+```
+python install.py rocm
+```
+
+Available variants: `default` (CPU), `cuda@12`, `cuda@13`, `openvino` (Windows, Linux), `directml`, `qnn` (Windows), `migraphx`, `rocm` (Linux). To install manually, run:
+
+```
+uv sync --only-group rocm
+```
+
+In a ROCm docker environment, use a ROCm base image, install uv and run `uv sync --only-group rocm`.
 
 
 Usage
@@ -26,7 +40,7 @@ Usage
 Run the command:
 
 ```
-python facefusion.py [commands] [options]
+uv run python facefusion.py [commands] [options]
 
 options:
   -h, --help                                      show this help message and exit
