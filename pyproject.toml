@@ -1,0 +1,41 @@
+[project]
+name = "facefusion"
+description = "Industry leading face manipulation platform"
+version = "3.9.1"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+	"gradio-rangeslider==0.0.8",
+	"gradio==5.50.0",
+	"numpy==2.4.6",
+	"onnx==1.23.1",
+	"opencv-python-headless==5.0.0.93",
+	"tqdm==4.70.1",
+	"scipy==1.18.1"
+]
+
+[dependency-groups]
+cpu = [ "onnxruntime==1.30.0" ]
+cuda-12 = [ "onnxruntime-gpu==1.24.4" ]
+cuda-13 = [ "onnxruntime-gpu==1.30.0" ]
+openvino = [ "onnxruntime-openvino==1.24.1" ]
+directml = [ "onnxruntime-directml==1.24.4" ]
+qnn = [ "onnxruntime-qnn==2.6.0" ]
+migraphx = [ "onnxruntime-migraphx==1.27.1" ]
+rocm = [ "onnxruntime-rocm==1.22.2.post3" ]
+dev = [ "coveralls", "flake8", "flake8-import-order", "mypy", "pytest", "pytest-cov" ]
+
+[tool.uv]
+package = false
+default-groups = [ "cpu" ]
+conflicts = [
+	[
+		{ group = "cpu" },
+		{ group = "cuda-12" },
+		{ group = "cuda-13" },
+		{ group = "openvino" },
+		{ group = "directml" },
+		{ group = "qnn" },
+		{ group = "migraphx" },
+		{ group = "rocm" }
+	]
+]

@@ -7,7 +7,7 @@ import numpy
 
 import facefusion.jobs.job_manager
 import facefusion.jobs.job_store
-from facefusion import config, content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, logger, state_manager, translator, video_manager
+from facefusion import config, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, logger, state_manager, translator, video_manager, voice_extractor
 from facefusion.common_helper import get_middle
 from facefusion.face_creator import scale_face
 from facefusion.face_helper import warp_face_by_face_landmark_5
@@ -19,7 +19,7 @@ from facefusion.processors.modules.face_debugger.types import FaceDebuggerInputs
 from facefusion.processors.types import ProcessorOutputs
 from facefusion.program_helper import find_argument_group
 from facefusion.types import ApplyStateItem, Args, Face, InferencePool, ProcessMode, VisionFrame
-from facefusion.vision import read_static_image, read_static_video_chunk, read_static_video_frame
+from facefusion.vision import read_static_image, read_static_video_frame
 
 
 def get_inference_pool() -> InferencePool:
@@ -42,7 +42,7 @@ def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 
 
 def get_common_modules() -> List[ModuleType]:
-	return [ content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer ]
+	return [ face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, voice_extractor ]
 
 
 def pre_check() -> bool:
@@ -68,7 +68,6 @@ def pre_process(mode : ProcessMode) -> bool:
 def post_process() -> None:
 	read_static_image.cache_clear()
 	read_static_video_frame.cache_clear()
-	read_static_video_chunk.cache_clear()
 	video_manager.clear_video_pool()
 
 	if state_manager.get_item('video_memory_strategy') == 'strict':

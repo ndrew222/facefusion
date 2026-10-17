@@ -4,4 +4,5 @@ __pycache__
 .caches
 .idea
 .jobs
+.venv
 .vscode

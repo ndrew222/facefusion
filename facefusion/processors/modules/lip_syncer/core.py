@@ -8,7 +8,7 @@ import numpy
 
 import facefusion.jobs.job_manager
 import facefusion.jobs.job_store
-from facefusion import config, content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, inference_manager, logger, state_manager, translator, video_manager, voice_extractor
+from facefusion import config, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, inference_manager, logger, state_manager, translator, video_manager, voice_extractor
 from facefusion.audio import read_static_voice
 from facefusion.common_helper import create_float_metavar, get_middle
 from facefusion.download import conditional_download_hashes, conditional_download_sources, resolve_download_url
@@ -23,7 +23,7 @@ from facefusion.processors.types import ProcessorOutputs
 from facefusion.program_helper import find_argument_group
 from facefusion.thread_helper import conditional_thread_semaphore
 from facefusion.types import ApplyStateItem, Args, AudioFrame, DownloadScope, Face, InferencePool, ModelOptions, ModelSet, ProcessMode, VisionFrame
-from facefusion.vision import read_static_image, read_static_video_chunk, read_static_video_frame
+from facefusion.vision import read_static_image, read_static_video_frame
 
 
 @lru_cache()
@@ -145,7 +145,7 @@ def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 
 
 def get_common_modules() -> List[ModuleType]:
-	return [ content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, voice_extractor ]
+	return [ face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, voice_extractor ]
 
 
 def pre_check() -> bool:
@@ -169,7 +169,6 @@ def pre_process(mode : ProcessMode) -> bool:
 def post_process() -> None:
 	read_static_image.cache_clear()
 	read_static_video_frame.cache_clear()
-	read_static_video_chunk.cache_clear()
 	read_static_voice.cache_clear()
 	video_manager.clear_video_pool()
 
